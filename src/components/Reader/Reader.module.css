@@ -1,0 +1,201 @@
+.reader {
+  position: fixed;
+  inset: 0;
+  background: var(--reader-bg);
+  color: var(--reader-fg);
+}
+
+.surface {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  /* Taps turn pages; don't start text selection or the iOS callout. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* The page box: everything outside it is margin, safe area or footer. */
+.frame {
+  position: absolute;
+  top: calc(var(--safe-top) + 28px);
+  bottom: calc(var(--safe-bottom) + 34px);
+  left: calc(var(--safe-left) + var(--reader-margin));
+  right: calc(var(--safe-right) + var(--reader-margin));
+  overflow: hidden;
+}
+
+.columns {
+  column-fill: auto;
+  font-family: var(--reader-font);
+  font-size: var(--reader-size);
+  line-height: var(--reader-line);
+  text-align: justify;
+  line-break: strict; /* keep Chinese closing punctuation off line starts */
+  overflow-wrap: break-word;
+  will-change: transform;
+}
+
+.columns p {
+  margin: 0 0 var(--reader-para-gap);
+  text-indent: 2em;
+}
+
+.columns p.cont {
+  text-indent: 0;
+}
+
+/* Chapter headings always start a new page, like a printed book. */
+.columns p.heading {
+  break-before: column;
+  text-indent: 0;
+  margin: 0.6em 0 1.4em;
+  font-size: 1.3em;
+  line-height: 1.5;
+  font-weight: 600;
+  text-align: left;
+}
+
+.ribbon {
+  position: absolute;
+  top: 0;
+  right: calc(var(--safe-right) + 18px);
+  width: 14px;
+  height: calc(var(--safe-top) + 26px);
+  background: #c0533f;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+  pointer-events: none;
+}
+
+.marked {
+  color: #c0533f;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px calc(var(--safe-right) + var(--reader-margin)) calc(var(--safe-bottom) + 6px)
+    calc(var(--safe-left) + var(--reader-margin));
+  color: color-mix(in srgb, var(--reader-fg) 50%, transparent);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.footerTitle {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.topBar,
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--reader-bg) 88%, transparent);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  animation: fade 0.15s ease-out;
+}
+
+.topBar {
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(var(--safe-top) + 4px) calc(var(--safe-right) + 8px) 6px calc(var(--safe-left) + 8px);
+  border-bottom: 1px solid color-mix(in srgb, var(--reader-fg) 10%, transparent);
+}
+
+.back {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.back:active {
+  background: color-mix(in srgb, var(--reader-fg) 10%, transparent);
+}
+
+.barTitle {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bottomBar {
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px calc(var(--safe-right) + 14px) calc(var(--safe-bottom) + 14px) calc(var(--safe-left) + 22px);
+  border-top: 1px solid color-mix(in srgb, var(--reader-fg) 10%, transparent);
+}
+
+.step {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.step:active {
+  background: color-mix(in srgb, var(--reader-fg) 10%, transparent);
+}
+
+.percent {
+  flex: none;
+  width: 3.2em;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+  margin: 0 4px;
+  accent-color: var(--reader-fg);
+}
+
+.status {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: var(--reader-bg);
+  color: var(--reader-fg);
+  text-align: center;
+}
+
+.statusButton {
+  padding: 8px 20px;
+  border-radius: 18px;
+  border: 1px solid currentColor;
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}

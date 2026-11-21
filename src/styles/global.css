@@ -1,0 +1,100 @@
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --text: #1f1f1f;
+  --text-2: #6e6c68;
+  --text-3: #a3a09a;
+  --hairline: rgba(0, 0, 0, 0.08);
+  --accent: #8a6e45;
+  --danger: #c0392b;
+  --scrim: rgba(0, 0, 0, 0.35);
+  --sheet: rgba(250, 249, 247, 0.96);
+
+  /* Reader defaults (Milestone 2 makes these user-configurable). */
+  --reader-bg: #f4e8d2;
+  --reader-fg: #45382b;
+  --reader-font: -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
+  --reader-size: 19px;
+  --reader-line: 1.85;
+  --reader-margin: 22px;
+  --reader-para-gap: 0.55em;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  --ui-font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', system-ui, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --surface: #1c1c1e;
+    --text: #ecebe8;
+    --text-2: #a19e98;
+    --text-3: #6b6863;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --accent: #d1b07a;
+    --danger: #ff6b5e;
+    --scrim: rgba(0, 0, 0, 0.55);
+    --sheet: rgba(36, 36, 38, 0.96);
+    --reader-bg: #191919;
+    --reader-fg: #d6d2ca;
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--ui-font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+input {
+  font: inherit;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
