@@ -117,3 +117,18 @@ describe('import + repository', () => {
     expect(parsed.book.encoding).toBe('gb18030');
   });
 });
+
+import { createSettingsRepository } from '../src/services/storage/settingsRepository';
+import { sanitizeReaderSettings } from '../src/domain/settings/readerSettings';
+
+describe('reader settings', () => {
+  it('saves, loads and sanitizes', async () => {
+    const s = createSettingsRepository(createDb(`settings-${n++}`));
+    expect((await s.loadReader()).fontSize).toBe(19);
+    await s.saveReader({ fontSize: 24 });
+    expect((await s.loadReader()).fontSize).toBe(24);
+    expect(sanitizeReaderSettings({ fontSize: 99 }).fontSize).toBe(30);
+    expect(sanitizeReaderSettings({ fontSize: 'x' }).fontSize).toBe(19);
+    expect(sanitizeReaderSettings(null).fontSize).toBe(19);
+  });
+});

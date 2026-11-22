@@ -1,7 +1,8 @@
 import { BookOpen, Ellipsis, Plus } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { ask } from '../../app/dialogStore';
 import { useShelf } from '../../app/shelfStore';
+import { formatFileSize } from '../../domain/books/fileSize';
 import { relativeTime } from '../../domain/books/relativeTime';
 import { formatPercent } from '../../domain/progress/progress';
 import { navigate } from '../../hooks/useHashRoute';
@@ -21,6 +22,8 @@ export function Bookshelf() {
 
   return (
     <div className={styles.page}>
+      {/* Solid strip behind the status bar so the list scrolls underneath it. */}
+      <div className={styles.statusBar} aria-hidden="true" />
       <header className={styles.header}>
         <h1 className={styles.heading}>书架</h1>
         <button className={styles.iconButton} onClick={pick} disabled={importing} aria-label="导入 TXT">
@@ -54,9 +57,9 @@ export function Bookshelf() {
           <small>支持 UTF-8 与 GBK/GB18030 编码</small>
         </div>
       ) : (
-        <ul className={styles.grid}>
+        <ul className={styles.list}>
           {books.map((b) => (
-            <BookCard key={b.id} book={b} />
+            <BookRow key={b.id} book={b} />
           ))}
         </ul>
       )}
@@ -64,8 +67,9 @@ export function Bookshelf() {
   );
 }
 
-function BookCard({ book }: { book: BookSummary }) {
+function BookRow({ book }: { book: BookSummary }) {
   const { rename, remove } = useShelf();
+  const id = useId();
 
   const openMenu = async () => {
     const r = await ask({
@@ -100,21 +104,35 @@ function BookCard({ book }: { book: BookSummary }) {
     }
   };
 
+  const meta = [
+    formatPercent(book.progressOffset, book.length),
+    book.lastOpenedAt ? relativeTime(book.lastOpenedAt) : null,
+    formatFileSize(book.fileSize),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   return (
-    <li className={styles.card}>
-      <button className={styles.open} onClick={() => navigate({ name: 'reader', bookId: book.id })}>
+    <li className={styles.row}>
+      <button
+        className={styles.open}
+        onClick={() => navigate({ name: 'reader', bookId: book.id })}
+        aria-labelledby={`${id}-t`}
+        aria-describedby={`${id}-m`}
+      >
         <Cover title={book.title} />
-        <span className={styles.title}>{book.title}</span>
-      </button>
-      <div className={styles.metaRow}>
-        <span className={styles.meta}>
-          {formatPercent(book.progressOffset, book.length)}
-          {book.lastOpenedAt ? ` · ${relativeTime(book.lastOpenedAt)}` : ''}
+        <span className={styles.text}>
+          <span id={`${id}-t`} className={styles.title}>
+            {book.title}
+          </span>
+          <span id={`${id}-m`} className={styles.meta}>
+            {meta}
+          </span>
         </span>
-        <button className={styles.more} onClick={openMenu} aria-label={`${book.title} 更多操作`}>
-          <Ellipsis size={18} />
-        </button>
-      </div>
+      </button>
+      <button className={styles.more} onClick={openMenu} aria-label={`${book.title} 更多操作`}>
+        <Ellipsis size={20} />
+      </button>
     </li>
   );
 }

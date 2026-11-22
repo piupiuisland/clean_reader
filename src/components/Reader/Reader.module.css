@@ -127,6 +127,20 @@
   background: color-mix(in srgb, var(--reader-fg) 10%, transparent);
 }
 
+.barSide {
+  flex: none;
+  width: 88px; /* two buttons; keeps the title centred */
+  display: flex;
+}
+
+.barRight {
+  justify-content: flex-end;
+}
+
+.active {
+  color: var(--accent);
+}
+
 .barTitle {
   flex: 1;
   min-width: 0;

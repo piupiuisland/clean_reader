@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- Let the app paint behind the status bar / Dynamic Island so the top area matches the page.
+         Layout already pads with env(safe-area-inset-top). -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="PureReader" />
-    <meta name="theme-color" content="#f7f6f3" />
+    <meta name="theme-color" content="#ebeae6" />
     <title>PureReader Lite</title>
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />

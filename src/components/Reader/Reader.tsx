@@ -1,6 +1,7 @@
-import { Bookmark, BookmarkCheck, ChevronLeft, ChevronRight, House, TableOfContents } from 'lucide-react';
+import { Bookmark, BookmarkCheck, ChevronLeft, ChevronRight, House, Menu, TableOfContents } from 'lucide-react';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { toast } from '../../app/dialogStore';
+import { useSettings } from '../../app/settingsStore';
 import { chapterIndexAt, detectChapters, type Chapter } from '../../domain/books/chapters';
 import { excerptAt } from '../../domain/books/search';
 import { splitParagraphs, paragraphIndexAt, type Paragraph } from '../../domain/books/paragraphs';
@@ -11,6 +12,7 @@ import { navigate } from '../../hooks/useHashRoute';
 import { bookRepository } from '../../services/storage/bookRepository';
 import type { BookmarkRecord, BookRecord } from '../../services/storage/db';
 import styles from './Reader.module.css';
+import { SettingsSheet } from './SettingsSheet';
 import { SidePanel, type PanelTab } from './SidePanel';
 
 interface LoadedBook {
@@ -39,6 +41,7 @@ export function Reader({ bookId }: { bookId: string }) {
         const sections = buildSections(paragraphs);
         const chapters = detectChapters(text, paragraphs);
         const bookmarks = await bookRepository.listBookmarks(bookId);
+        await useSettings.getState().load(); // typography must be known before the first layout
         void bookRepository.markOpened(bookId);
         if (!cancelled) setData({ book, text, paragraphs, sections, chapters, bookmarks, initialOffset });
       } catch (e) {
@@ -118,6 +121,8 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
 
   const [chrome, setChrome] = useState(false);
   const [scrub, setScrub] = useState<number | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const fontSize = useSettings((st) => st.reader.fontSize);
   const [panel, setPanel] = useState<{ open: boolean; tab: PanelTab }>({ open: false, tab: 'outline' });
   const [bookmarks, setBookmarks] = useState(initialBookmarks);
   /** [start, end) text range shown on the current page. */
@@ -183,6 +188,16 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
     );
     return () => ro.disconnect();
   }, []);
+
+  // Typography changed: re-paginate around the anchor so the reading position is kept.
+  const firstFont = useRef(true);
+  useLayoutEffect(() => {
+    if (firstFont.current) {
+      firstFont.current = false;
+      return;
+    }
+    setPos((p) => ({ section: p.section, target: { kind: 'offset', offset: anchorRef.current } }));
+  }, [fontSize]);
 
   // ---- layout: runs after the section is in the DOM with the new geometry --
 
@@ -286,7 +301,10 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
     if (Math.abs(dx) > SWIPE_MIN_PX && Math.abs(dx) > Math.abs(dy)) {
       start.swiped = true;
       if (start.edge && dx < 0) openPanel();
-      else if (chrome) setChrome(false);
+      else if (chrome) {
+        setChrome(false);
+        setSettingsOpen(false);
+      }
       else if (dx < 0) next();
       else prev();
     }
@@ -299,6 +317,7 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
     }
     if (chrome) {
       setChrome(false);
+      setSettingsOpen(false);
       return;
     }
     if (e.clientX > window.innerWidth - CORNER_PX && e.clientY < cornerBottom()) {
@@ -341,6 +360,7 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
 
   const openPanel = (tab?: PanelTab) => {
     setChrome(false);
+    setSettingsOpen(false);
     setPanel((p) => ({ open: true, tab: tab ?? p.tab }));
   };
   const closePanel = () => setPanel((p) => ({ ...p, open: false }));
@@ -402,7 +422,7 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
     : undefined;
 
   return (
-    <div className={styles.reader}>
+    <div className={styles.reader} style={{ '--reader-size': `${fontSize}px` } as React.CSSProperties}>
       <div
         ref={surfaceRef}
         className={styles.surface}
@@ -427,10 +447,21 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
       {chrome && (
         <>
           <header className={styles.topBar}>
-            <button className={styles.back} onClick={() => navigate({ name: 'shelf' })} aria-label="返回书架">
-              <House size={22} />
-            </button>
+            <div className={styles.barSide}>
+              <button className={styles.back} onClick={() => navigate({ name: 'shelf' })} aria-label="返回书架">
+                <House size={22} />
+              </button>
+              <button
+                className={`${styles.back} ${settingsOpen ? styles.active : ''}`}
+                onClick={() => setSettingsOpen((o) => !o)}
+                aria-label="菜单"
+                aria-expanded={settingsOpen}
+              >
+                <Menu size={22} />
+              </button>
+            </div>
             <div className={styles.barTitle}>{book.title}</div>
+            <div className={`${styles.barSide} ${styles.barRight}`}>
             <button
               className={`${styles.back} ${isMarked ? styles.marked : ''}`}
               onClick={toggleBookmark}
@@ -438,7 +469,11 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
             >
               {isMarked ? <BookmarkCheck size={22} /> : <Bookmark size={22} />}
             </button>
+            </div>
           </header>
+          {settingsOpen ? (
+            <SettingsSheet />
+          ) : (
           <footer className={styles.bottomBar}>
             <button className={styles.step} onClick={() => openPanel()} aria-label="目录与书签">
               <TableOfContents size={21} />
@@ -466,6 +501,7 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
               {percentLabel(shownPercent)}
             </div>
           </footer>
+          )}
         </>
       )}
 

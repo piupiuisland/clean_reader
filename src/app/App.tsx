@@ -13,6 +13,14 @@ export function App() {
     void requestPersistentStorage();
   }, []);
 
+  // Match the browser/status-bar tint to the current screen's background.
+  useEffect(() => {
+    const color = getComputedStyle(document.documentElement)
+      .getPropertyValue(route.name === 'reader' ? '--reader-bg' : '--bg')
+      .trim();
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+  }, [route.name]);
+
   return (
     <>
       {route.name === 'reader' ? <Reader key={route.bookId} bookId={route.bookId} /> : <Bookshelf />}

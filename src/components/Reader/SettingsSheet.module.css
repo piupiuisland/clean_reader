@@ -1,0 +1,69 @@
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 16px calc(var(--safe-right) + 16px) calc(var(--safe-bottom) + 18px) calc(var(--safe-left) + 16px);
+  background: color-mix(in srgb, var(--reader-bg) 92%, transparent);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border-top: 1px solid color-mix(in srgb, var(--reader-fg) 10%, transparent);
+  color: var(--reader-fg);
+  animation: rise 0.18s ease-out;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  flex: none;
+  width: 36px;
+  display: grid;
+  place-items: center;
+  opacity: 0.8;
+}
+
+.step {
+  flex: none;
+  width: 40px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--reader-fg) 22%, transparent);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.step:active {
+  background: color-mix(in srgb, var(--reader-fg) 10%, transparent);
+}
+
+.step:disabled {
+  opacity: 0.3;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--reader-fg);
+}
+
+.value {
+  flex: none;
+  width: 2em;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}

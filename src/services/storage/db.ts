@@ -37,11 +37,17 @@ export interface BookmarkRecord {
   createdAt: number;
 }
 
+export interface SettingRecord {
+  key: string;
+  value: unknown;
+}
+
 export type ReaderDB = Dexie & {
   books: EntityTable<BookRecord, 'id'>;
   contents: EntityTable<BookContentRecord, 'bookId'>;
   progress: EntityTable<ProgressRecord, 'bookId'>;
   bookmarks: EntityTable<BookmarkRecord, 'id'>;
+  settings: EntityTable<SettingRecord, 'key'>;
 };
 
 export const DB_NAME = 'pure-reader-lite';
@@ -61,6 +67,10 @@ export function createDb(name = DB_NAME): ReaderDB {
   // v2: bookmarks. Additive, so no upgrade function is needed.
   db.version(2).stores({
     bookmarks: '++id, bookId',
+  });
+  // v3: key/value settings (reader typography etc.).
+  db.version(3).stores({
+    settings: 'key',
   });
   return db;
 }

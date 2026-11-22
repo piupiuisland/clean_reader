@@ -77,3 +77,13 @@ describe('hashText', () => {
     expect(hashText('abc')).not.toBe(hashText('abd'));
   });
 });
+
+import { formatFileSize } from '../src/domain/books/fileSize';
+describe('formatFileSize', () => {
+  it('formats B / KB / MB', () => {
+    expect(formatFileSize(512)).toBe('512 B');
+    expect(formatFileSize(2048)).toBe('2 KB');
+    expect(formatFileSize(3.4 * 1048576)).toBe('3.4 MB');
+    expect(formatFileSize(25 * 1048576)).toBe('25 MB');
+  });
+});

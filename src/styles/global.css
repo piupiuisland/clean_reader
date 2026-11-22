@@ -1,7 +1,7 @@
 :root {
-  --bg: #f7f6f3;
+  --bg: #ebeae6; /* slightly grey */
   --surface: #ffffff;
-  --text: #1f1f1f;
+  --text: #1a1a1a;
   --text-2: #6e6c68;
   --text-3: #a3a09a;
   --hairline: rgba(0, 0, 0, 0.08);
@@ -11,8 +11,8 @@
   --sheet: rgba(250, 249, 247, 0.96);
 
   /* Reader defaults (Milestone 2 makes these user-configurable). */
-  --reader-bg: #f4e8d2;
-  --reader-fg: #45382b;
+  --reader-bg: #ebe5d9; /* warm paper, toned grey */
+  --reader-fg: #2f271e; /* a little darker than before */
   --reader-font: -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
   --reader-size: 19px;
   --reader-line: 1.85;
