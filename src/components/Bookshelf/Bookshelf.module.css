@@ -20,6 +20,11 @@
   letter-spacing: 0.02em;
 }
 
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
 .iconButton {
   width: 40px;
   height: 40px;

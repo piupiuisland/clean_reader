@@ -10,6 +10,8 @@ interface SettingsState {
   reader: ReaderSettings;
   loaded: boolean;
   load: () => Promise<void>;
+  /** Re-read from storage (after restoring a backup). */
+  reload: () => Promise<void>;
   updateReader: (patch: Partial<ReaderSettings>) => void;
 }
 
@@ -25,6 +27,10 @@ export const useSettings = create<SettingsState>((set, get) => ({
     } catch {
       set({ loaded: true }); // fall back to defaults; never block reading
     }
+  },
+  reload: async () => {
+    set({ loaded: false });
+    await get().load();
   },
   updateReader: (patch) => {
     const reader = sanitizeReaderSettings({ ...get().reader, ...patch });

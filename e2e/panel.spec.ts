@@ -7,7 +7,7 @@ const BOOK = Array.from({ length: 20 }, (_, i) => chapter(i + 1)).join('\n') + '
 
 async function open(page: Page) {
   await page.goto('/');
-  await page.locator('input[type=file]').setInputFiles({ name: '风起.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
+  await page.locator('input[type=file][accept*=txt]').setInputFiles({ name: '风起.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
   await page.getByRole('button', { name: '风起', exact: true }).click();
   await expect(page.locator('[class*=columns] p').first()).toBeVisible();
 }

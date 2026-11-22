@@ -20,7 +20,7 @@ async function firstVisibleParagraph(page: Page) {
 
 test('bookshelf is a list with file size in the subtitle', async ({ page }) => {
   await page.goto('/');
-  await page.locator('input[type=file]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
+  await page.locator('input[type=file][accept*=txt]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
   const row = page.getByRole('listitem').filter({ hasText: '测试' });
   await expect(row).toContainText('未读');
   await expect(row).toContainText(/\d+ KB/);
@@ -28,7 +28,7 @@ test('bookshelf is a list with file size in the subtitle', async ({ page }) => {
 
 test('menu next to home opens font size; changing it keeps position and persists', async ({ page }) => {
   await page.goto('/');
-  await page.locator('input[type=file]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
+  await page.locator('input[type=file][accept*=txt]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
   await page.getByRole('button', { name: '测试', exact: true }).click();
   await expect(page.locator('[class*=columns] p').first()).toBeVisible();
   for (let i = 0; i < 8; i++) await tapRight(page);
@@ -65,7 +65,7 @@ test('menu next to home opens font size; changing it keeps position and persists
 
 test('new books default to 柔和夜间黑 + 宋体; 字体 menu switches typeface and persists', async ({ page }) => {
   await page.goto('/');
-  await page.locator('input[type=file]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
+  await page.locator('input[type=file][accept*=txt]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
   await page.getByRole('button', { name: '测试', exact: true }).click();
   await expect(page.locator('[class*=columns] p').first()).toBeVisible();
   const reader = page.locator('[data-theme]');
@@ -89,7 +89,7 @@ test('new books default to 柔和夜间黑 + 宋体; 字体 menu switches typefa
 
 test('menu has font size and theme buttons; theme changes colours and persists', async ({ page }) => {
   await page.goto('/');
-  await page.locator('input[type=file]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
+  await page.locator('input[type=file][accept*=txt]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
   await page.getByRole('button', { name: '测试', exact: true }).click();
   await expect(page.locator('[class*=columns] p').first()).toBeVisible();
 

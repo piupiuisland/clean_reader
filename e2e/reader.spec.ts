@@ -46,7 +46,7 @@ async function tapZone(page: Page, zone: 'left' | 'center' | 'right') {
 
 async function importAndOpen(page: Page, name: string, content: string | Buffer) {
   await page.goto('/');
-  await page.locator('input[type=file]').setInputFiles({
+  await page.locator('input[type=file][accept*=txt]').setInputFiles({
     name,
     mimeType: 'text/plain',
     buffer: typeof content === 'string' ? Buffer.from(content, 'utf-8') : content,
