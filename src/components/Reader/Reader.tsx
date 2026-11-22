@@ -13,6 +13,7 @@ import { bookRepository } from '../../services/storage/bookRepository';
 import type { BookmarkRecord, BookRecord } from '../../services/storage/db';
 import styles from './Reader.module.css';
 import { SettingsSheet } from './SettingsSheet';
+import { ensureFontCss, readerFont, readerTheme } from '../../domain/settings/readerSettings';
 import { SidePanel, type PanelTab } from './SidePanel';
 
 interface LoadedBook {
@@ -123,6 +124,17 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
   const [scrub, setScrub] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const fontSize = useSettings((st) => st.reader.fontSize);
+  const theme = readerTheme(useSettings((st) => st.reader.theme));
+  const font = readerFont(useSettings((st) => st.reader.font));
+  useEffect(() => ensureFontCss(font), [font]);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Tint the status-bar area to the page colour of the chosen theme.
+  useLayoutEffect(() => {
+    if (!rootRef.current) return;
+    const color = getComputedStyle(rootRef.current).getPropertyValue('--reader-bg').trim();
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+  }, [theme.id]);
   const [panel, setPanel] = useState<{ open: boolean; tab: PanelTab }>({ open: false, tab: 'outline' });
   const [bookmarks, setBookmarks] = useState(initialBookmarks);
   /** [start, end) text range shown on the current page. */
@@ -183,10 +195,15 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
     const ro = new ResizeObserver(measure);
     ro.observe(frame);
     // Web fonts or late system-font fallback can change line breaks.
-    void document.fonts?.ready.then(() =>
-      setPos((p) => ({ section: p.section, target: { kind: 'offset', offset: anchorRef.current } })),
-    );
-    return () => ro.disconnect();
+    const relayout = () =>
+      setPos((p) => ({ section: p.section, target: { kind: 'offset', offset: anchorRef.current } }));
+    void document.fonts?.ready.then(relayout);
+    // Web-font glyph files arrive after the first layout (e.g. 宋体/楷体 on iPhone).
+    document.fonts?.addEventListener?.('loadingdone', relayout);
+    return () => {
+      ro.disconnect();
+      document.fonts?.removeEventListener?.('loadingdone', relayout);
+    };
   }, []);
 
   // Typography changed: re-paginate around the anchor so the reading position is kept.
@@ -197,7 +214,7 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
       return;
     }
     setPos((p) => ({ section: p.section, target: { kind: 'offset', offset: anchorRef.current } }));
-  }, [fontSize]);
+  }, [fontSize, font.id]);
 
   // ---- layout: runs after the section is in the DOM with the new geometry --
 
@@ -422,7 +439,20 @@ function ReaderView({ book, text, paragraphs, sections, chapters, bookmarks: ini
     : undefined;
 
   return (
-    <div className={styles.reader} style={{ '--reader-size': `${fontSize}px` } as React.CSSProperties}>
+    <div
+      ref={rootRef}
+      className={styles.reader}
+      data-theme={theme.id}
+      style={
+        {
+          '--reader-size': `${fontSize}px`,
+          '--reader-bg': theme.bg,
+          '--reader-fg': theme.fg,
+          '--reader-font': font.family,
+          colorScheme: theme.dark ? 'dark' : 'light',
+        } as React.CSSProperties
+      }
+    >
       <div
         ref={surfaceRef}
         className={styles.surface}

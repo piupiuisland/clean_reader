@@ -62,3 +62,53 @@ test('menu next to home opens font size; changing it keeps position and persists
   await expect(page.locator('[class*=columns] p').first()).toBeVisible();
   expect(await size()).toBe('30px');
 });
+
+test('new books default to 柔和夜间黑 + 宋体; 字体 menu switches typeface and persists', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('input[type=file]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
+  await page.getByRole('button', { name: '测试', exact: true }).click();
+  await expect(page.locator('[class*=columns] p').first()).toBeVisible();
+  const reader = page.locator('[data-theme]');
+  const family = () => page.locator('[class*=columns]').evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(await reader.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(29, 32, 35)');
+  expect(await family()).toContain('Songti SC');
+
+  await tapCenter(page);
+  await page.getByRole('button', { name: '菜单' }).click();
+  const sheet = page.getByRole('region', { name: '阅读设置' });
+  await sheet.getByRole('button', { name: '字体', exact: true }).click();
+  await expect(sheet.getByRole('radio', { name: '宋体' })).toHaveAttribute('aria-checked', 'true');
+  await sheet.getByRole('radio', { name: '楷体' }).click();
+  expect(await family()).toContain('Kaiti SC');
+
+  await page.waitForTimeout(500);
+  await page.reload();
+  await expect(page.locator('[class*=columns] p').first()).toBeVisible();
+  expect(await family()).toContain('Kaiti SC');
+});
+
+test('menu has font size and theme buttons; theme changes colours and persists', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('input[type=file]').setInputFiles({ name: '测试.txt', mimeType: 'text/plain', buffer: Buffer.from(BOOK) });
+  await page.getByRole('button', { name: '测试', exact: true }).click();
+  await expect(page.locator('[class*=columns] p').first()).toBeVisible();
+
+  await tapCenter(page);
+  await page.getByRole('button', { name: '菜单' }).click();
+  const sheet = page.getByRole('region', { name: '阅读设置' });
+  await expect(sheet.getByRole('button', { name: '字号', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await sheet.getByRole('button', { name: '主题', exact: true }).click();
+  await expect(sheet.getByRole('slider', { name: '字号' })).toBeHidden();
+
+  const reader = page.locator('[data-theme]');
+  const colors = () => reader.evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color]);
+  await sheet.getByRole('radio', { name: '护眼' }).click();
+  await expect(sheet.getByRole('radio', { name: '护眼' })).toHaveAttribute('aria-checked', 'true');
+  expect(await colors()).toEqual(['rgb(207, 224, 203)', 'rgb(38, 51, 31)']);
+  await expect(page.locator('meta[name=theme-color]')).toHaveAttribute('content', /#cfe0cb/i);
+
+  await page.waitForTimeout(500);
+  await page.reload();
+  await expect(page.locator('[class*=columns] p').first()).toBeVisible();
+  expect(await colors()).toEqual(['rgb(207, 224, 203)', 'rgb(38, 51, 31)']);
+});

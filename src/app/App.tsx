@@ -13,11 +13,10 @@ export function App() {
     void requestPersistentStorage();
   }, []);
 
-  // Match the browser/status-bar tint to the current screen's background.
+  // Match the browser/status-bar tint to the shelf background (the reader sets its own per theme).
   useEffect(() => {
-    const color = getComputedStyle(document.documentElement)
-      .getPropertyValue(route.name === 'reader' ? '--reader-bg' : '--bg')
-      .trim();
+    if (route.name === 'reader') return;
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
   }, [route.name]);
 
